@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Flask
+instance/
+.webassets-cache
+
+# dotenv
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Netlify
+.netlify/
+
+# Node
+node_modules/
+
+# Misc
+*.log
+*.sqlite*

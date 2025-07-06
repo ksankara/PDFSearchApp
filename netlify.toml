@@ -1,0 +1,6 @@
+[build]
+  publish = "templates"
+  command = "echo 'No build step required'"
+
+[functions]
+  directory = "functions"
