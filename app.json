@@ -1,0 +1,51 @@
+{
+  "name": "Veritiv Data Dashboard",
+  "description": "A comprehensive data dashboard for PDF extraction and Redshift database exploration",
+  "repository": "https://github.com/your-username/veritiv-data-dashboard",
+  "logo": "https://example.com/logo.png",
+  "keywords": ["python", "flask", "redshift", "dashboard", "analytics"],
+  "scripts": {},
+  "env": {
+    "FLASK_DEBUG": {
+      "description": "Flask debug mode (set to False for production)",
+      "value": "False"
+    },
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API key for PDF processing (optional)",
+      "required": false
+    },
+    "REDSHIFT_HOST": {
+      "description": "Redshift cluster hostname",
+      "required": true
+    },
+    "REDSHIFT_PORT": {
+      "description": "Redshift port (usually 5439)",
+      "value": "5439"
+    },
+    "REDSHIFT_DATABASE": {
+      "description": "Redshift database name",
+      "required": true
+    },
+    "REDSHIFT_USERNAME": {
+      "description": "Redshift username",
+      "required": true
+    },
+    "REDSHIFT_PASSWORD": {
+      "description": "Redshift password",
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
