@@ -57,7 +57,43 @@ def redshift_dashboard():
 
 @app.route('/api/tables', methods=['GET'])
 def get_tables():
-    """Get list of tables from Redshift"""
+    """Get list of tables from Redshift with priority for 'evo' schema"""
+    try:
+        engine = get_redshift_connection()
+        if not engine:
+            return jsonify({'error': 'Failed to connect to Redshift'}), 500
+        
+        # Query that prioritizes 'evo' schema first, then other schemas
+        query = """
+        SELECT schemaname, tablename 
+        FROM pg_tables 
+        WHERE schemaname NOT IN ('information_schema', 'pg_catalog', 'pg_internal')
+        ORDER BY 
+            CASE WHEN schemaname = 'evo' THEN 1 ELSE 2 END,
+            schemaname, tablename;
+        """
+        
+        with engine.connect() as conn:
+            result = conn.execute(text(query))
+            tables = [{'schema': row[0], 'table': row[1]} for row in result.fetchall()]
+        
+        # Separate evo tables for easy frontend handling
+        evo_tables = [t for t in tables if t['schema'] == 'evo']
+        other_tables = [t for t in tables if t['schema'] != 'evo']
+        
+        return jsonify({
+            'tables': tables,
+            'evo_tables': evo_tables,
+            'evo_count': len(evo_tables),
+            'total_count': len(tables)
+        })
+    
+    except Exception as e:
+        return jsonify({'error': f'Error fetching tables: {str(e)}'}), 500
+
+@app.route('/api/evo-tables', methods=['GET'])
+def get_evo_tables():
+    """Get tables specifically from the 'evo' schema"""
     try:
         engine = get_redshift_connection()
         if not engine:
@@ -66,18 +102,22 @@ def get_tables():
         query = """
         SELECT schemaname, tablename 
         FROM pg_tables 
-        WHERE schemaname NOT IN ('information_schema', 'pg_catalog', 'pg_internal')
-        ORDER BY schemaname, tablename;
+        WHERE schemaname = 'evo'
+        ORDER BY tablename;
         """
         
         with engine.connect() as conn:
             result = conn.execute(text(query))
             tables = [{'schema': row[0], 'table': row[1]} for row in result.fetchall()]
         
-        return jsonify({'tables': tables})
+        return jsonify({
+            'tables': tables,
+            'schema': 'evo',
+            'count': len(tables)
+        })
     
     except Exception as e:
-        return jsonify({'error': f'Error fetching tables: {str(e)}'}), 500
+        return jsonify({'error': f'Error fetching EVO tables: {str(e)}'}), 500
 
 @app.route('/api/table-data', methods=['POST'])
 def get_table_data():
